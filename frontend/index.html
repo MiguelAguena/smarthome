@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<head>
+    <title>Controle de Temperatura</title>
+</head>
+<body>
+    <p id="timer"></p>
+    <p>Time multiplier: </p><input type="number" id="multiplier" value="1">
+    <script>
+        var date = new Date()
+        date.setHours(0, 0, 0, 0)
+        var intervalExecute = setInterval(function() {
+            document.getElementById("timer").innerHTML = date.toTimeString()
+            date.setSeconds(date.getSeconds() + 1)
+        }, 1000 * document.getElementById("multiplier").value)
+    </script>
+</body>
