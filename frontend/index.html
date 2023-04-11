@@ -13,6 +13,8 @@
     <br><br>
     <p style="display:inline">Potência do aquecedor: </p><input style="display:inline" type="number" id="power" value="1" min="1">
     <br><br>
+    <p style="display:inline">Temperatura máxima: </p><input style="display:inline" type="number" id="max_temp" value="40" min="25">
+    <br><br>
     <b style="display:inline">Ligar o aquecedor: </b><input style="display:inline" type="checkbox" id="turn_on">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js" integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
@@ -32,17 +34,17 @@
 
         function calculateTemperature() {
             if(document.getElementById("turn_on").checked) {
-                temp = oldTemp + (Math.exp((document.getElementById("power").value / 5) * (date.getSeconds() - oldDate) - 9))
+                temp = oldTemp + (((document.getElementById("max_temp").value - oldTemp) / 2) * math.erf((document.getElementById("power").value / 10) * ((date.getTime() - Number(oldDate)) / 1000) - 3)) + ((document.getElementById("max_temp").value - oldTemp) / 2)
             }
 
             else {
-                temp = oldTemp - ((oldTemp - ambientTemp) * math.erf(0.1 * (date.getSeconds() - oldDate) - 3))
+                temp = oldTemp - (((oldTemp - ambientTemp) / 2) * math.erf(0.1 * ((date.getTime() - Number(oldDate)) / 1000) - 3)) - ((oldTemp - ambientTemp) / 2)
             }
         }
 
         var update = function() {
             if(oldCheck != document.getElementById("turn_on").checked) {
-                oldDate = date.getSeconds()
+                oldDate = date.getTime()
                 oldTemp = temp
             }
             oldCheck = document.getElementById("turn_on").checked
