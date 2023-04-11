@@ -21,11 +21,11 @@ const client = new InfluxDB({url, token})
 
 
 
-app.get('/', function(req, res){
-   res.send("Hello world!");
+app.get('/', function(req, res) {
+   res.send("Welcome to your SmartHome controller!");
 });
 
-app.post('/writeTemp', function(req, res){
+app.post('/writeTemp', function(req, res) {
    let writeClient = client.getWriteApi(org, bucket, 'ns')
 
    let temp = req.body.temp
@@ -44,11 +44,11 @@ app.post('/writeTemp', function(req, res){
    }
 
    catch(err) {
-      res.send(err.message)
+      res.send(err.message);
    }
 });
 
-app.post('/writeHum', function(req, res){
+app.post('/writeHum', function(req, res) {
    let writeClient = client.getWriteApi(org, bucket, 'ns')
 
    let hum = req.body.hum
@@ -67,7 +67,61 @@ app.post('/writeHum', function(req, res){
    }
 
    catch(err) {
-      res.send(err.message)
+      res.send(err.message);
+   }
+});
+
+app.get('/readTemp', function(req, res) {
+   let queryClient = client.getQueryApi(org)
+   fluxQuery = `from(bucket: "` + bucket + `")
+      |> range(start: -24h)
+      |> filter(fn: (r) => r["_measurement"] == "Temperatura")
+      |> filter(fn: (r) => r["_field"] == "Valor")`;
+
+   try {
+      let queryData = []
+      queryClient.queryRows(fluxQuery, {
+         next: (row, tableMeta) => {
+           queryData.push(tableMeta.toObject(row))
+         },
+         error: (error) => {
+           console.error('\nError', error)
+         },
+         complete: () => {
+           res.send(queryData);
+         },
+      })
+   }
+ 
+   catch(err) {
+      res.send(err.message);
+   }
+});
+
+app.get('/readHum', function(req, res) {
+   let queryClient = client.getQueryApi(org)
+   fluxQuery = `from(bucket: "` + bucket + `")
+      |> range(start: -24h)
+      |> filter(fn: (r) => r["_measurement"] == "Umidade")
+      |> filter(fn: (r) => r["_field"] == "Valor")`;
+
+   try {
+      let queryData = []
+      queryClient.queryRows(fluxQuery, {
+         next: (row, tableMeta) => {
+           queryData.push(tableMeta.toObject(row))
+         },
+         error: (error) => {
+           console.error('\nError', error)
+         },
+         complete: () => {
+           res.send(queryData);
+         },
+      })
+   }
+ 
+   catch(err) {
+      res.send(err.message);
    }
 });
 
