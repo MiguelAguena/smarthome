@@ -31,15 +31,44 @@ app.post('/writeTemp', function(req, res){
    let temp = req.body.temp
    let timestamp = String().concat(req.body.timestamp, "000000")
    
-   let point = new Point('Temperatura')
-               .floatField('Valor', temp)
-               .timestamp(timestamp)
+   try {
+      let point = new Point('Temperatura')
+                  .floatField('Valor', temp)
+                  .timestamp(timestamp)
 
-   writeClient.writePoint(point)
+      writeClient.writePoint(point)
 
-   writeClient.close().then(() => {
-    })
-   res.send("SUCCESS");
+      writeClient.close().then(() => {
+      })
+      res.send("SUCCESS");
+   }
+
+   catch(err) {
+      res.send(err.message)
+   }
+});
+
+app.post('/writeHum', function(req, res){
+   let writeClient = client.getWriteApi(org, bucket, 'ns')
+
+   let hum = req.body.hum
+   let timestamp = String().concat(req.body.timestamp, "000000")
+   
+   try {
+      let point = new Point('Umidade')
+                  .floatField('Valor', hum)
+                  .timestamp(timestamp)
+
+      writeClient.writePoint(point)
+
+      writeClient.close().then(() => {
+      })
+      res.send("SUCCESS");
+   }
+
+   catch(err) {
+      res.send(err.message)
+   }
 });
 
 app.listen(8000);

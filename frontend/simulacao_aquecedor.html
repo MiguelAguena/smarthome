@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<head>
+    <title>Controle de Temperatura</title>
+</head>
+<body>
+    <h1>Simulação de aquecedor</h1>
+    <br>
+    <p style="display:inline">Tempo: </p><p style="display:inline" id="timer"></p>
+    <br><br>
+    <p style="display:inline">Temperatura do ambiente: </p><p style="display:inline" id="temperature"></p>
+    <br><br>
+    <p style="display:inline">Multiplicador de velocidade: </p><input style="display:inline" type="number" id="multiplier" value="1" min="1">
+    <br><br>
+    <p style="display:inline">Potência do aquecedor: </p><input style="display:inline" type="number" id="power" value="1" min="1">
+    <br><br>
+    <p style="display:inline">Temperatura máxima: </p><input style="display:inline" type="number" id="max_temp" value="40" min="25">
+    <br><br>
+    <b style="display:inline">Ligar o aquecedor: </b><input style="display:inline" type="checkbox" id="turn_on">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js" integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        var xmlhttp = new XMLHttpRequest();
+
+        var date = new Date()
+        date.setHours(0, 0, 0, 0)
+
+        var ambientTemp = 25
+        var temp = ambientTemp
+        
+        var oldTemp = temp
+        var oldDate = 0
+        var oldCheck = false
+
+        document.getElementById("temperature").innerHTML = String(oldTemp) + " °C"
+
+        function calculateTemperature() {
+            if(document.getElementById("turn_on").checked) {
+                temp = oldTemp + (((document.getElementById("max_temp").value - oldTemp) / 2) * math.erf((document.getElementById("power").value / 10) * ((date.getTime() - Number(oldDate)) / 1000) - 3.5)) + ((document.getElementById("max_temp").value - oldTemp) / 2)
+            }
+
+            else {
+                temp = oldTemp - (((oldTemp - ambientTemp) / 2) * math.erf(0.1 * ((date.getTime() - Number(oldDate)) / 1000) - 3.5)) - ((oldTemp - ambientTemp) / 2)
+            }
+        }
+
+        var update = function() {
+            if(oldCheck != document.getElementById("turn_on").checked) {
+                oldDate = date.getTime()
+                oldTemp = temp
+            }
+            oldCheck = document.getElementById("turn_on").checked
+            calculateTemperature()
+            document.getElementById("timer").innerHTML = date.toTimeString()
+            document.getElementById("temperature").innerHTML = String(temp) + " °C"
+            date.setSeconds(date.getSeconds() + 1)
+
+            let obj = {temp:temp, timestamp:date.getTime()}
+            xmlhttp.open("POST", "http://localhost:8000/writeTemp", true);
+            xmlhttp.setRequestHeader('Content-Type', 'application/json')
+            xmlhttp.send(JSON.stringify(obj));
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                }
+            };
+
+            setTimeout(update, 1000 / document.getElementById("multiplier").value)
+        }
+        
+        setTimeout(update, 1000 / document.getElementById("multiplier").value)
+    </script>
+</body>

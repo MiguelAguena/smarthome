@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <head>
-    <title>Controle de Temperatura</title>
+    <title>Controle de Umidade</title>
 </head>
 <body>
-    <h1>Simulação de aquecedor</h1>
+    <h1>Simulação de umidificador</h1>
     <br>
     <p style="display:inline">Tempo: </p><p style="display:inline" id="timer"></p>
     <br><br>
-    <p style="display:inline">Temperatura do ambiente: </p><p style="display:inline" id="temperature"></p>
+    <p style="display:inline">Umidade do ambiente: </p><p style="display:inline" id="humidity"></p>
     <br><br>
     <p style="display:inline">Multiplicador de velocidade: </p><input style="display:inline" type="number" id="multiplier" value="1" min="1">
     <br><br>
-    <p style="display:inline">Potência do aquecedor: </p><input style="display:inline" type="number" id="power" value="1" min="1">
+    <p style="display:inline">Potência do umidificador: </p><input style="display:inline" type="number" id="power" value="1" min="1">
     <br><br>
-    <p style="display:inline">Temperatura máxima: </p><input style="display:inline" type="number" id="max_temp" value="40" min="25">
+    <p style="display:inline">Umidade máxima: </p><input style="display:inline" type="number" id="max_hum" value="70" min="0" max="100">
     <br><br>
-    <b style="display:inline">Ligar o aquecedor: </b><input style="display:inline" type="checkbox" id="turn_on">
+    <b style="display:inline">Ligar o umidificador: </b><input style="display:inline" type="checkbox" id="turn_on">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js" integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         var xmlhttp = new XMLHttpRequest();
@@ -23,38 +23,38 @@
         var date = new Date()
         date.setHours(0, 0, 0, 0)
 
-        var ambientTemp = 25
-        var temp = ambientTemp
+        var ambientHum = 50
+        var hum = ambientHum
         
-        var oldTemp = temp
+        var oldHum = hum
         var oldDate = 0
         var oldCheck = false
 
-        document.getElementById("temperature").innerHTML = String(oldTemp) + " °C"
+        document.getElementById("humidity").innerHTML = String(oldHum) + " %"
 
-        function calculateTemperature() {
+        function calculateHumidity() {
             if(document.getElementById("turn_on").checked) {
-                temp = oldTemp + (((document.getElementById("max_temp").value - oldTemp) / 2) * math.erf((document.getElementById("power").value / 10) * ((date.getTime() - Number(oldDate)) / 1000) - 3)) + ((document.getElementById("max_temp").value - oldTemp) / 2)
+                hum = oldHum + (((document.getElementById("max_hum").value - oldHum) / 2) * math.erf((document.getElementById("power").value / 10) * ((date.getTime() - Number(oldDate)) / 1000) - 4)) + ((document.getElementById("max_hum").value - oldHum) / 2)
             }
 
             else {
-                temp = oldTemp - (((oldTemp - ambientTemp) / 2) * math.erf(0.1 * ((date.getTime() - Number(oldDate)) / 1000) - 3)) - ((oldTemp - ambientTemp) / 2)
+                hum = oldHum - (((oldHum - ambientHum) / 2) * math.erf(0.1 * ((date.getTime() - Number(oldDate)) / 1000) - 4)) - ((oldHum - ambientHum) / 2)
             }
         }
 
         var update = function() {
             if(oldCheck != document.getElementById("turn_on").checked) {
                 oldDate = date.getTime()
-                oldTemp = temp
+                oldHum = hum
             }
             oldCheck = document.getElementById("turn_on").checked
-            calculateTemperature()
+            calculateHumidity()
             document.getElementById("timer").innerHTML = date.toTimeString()
-            document.getElementById("temperature").innerHTML = String(temp) + " °C"
+            document.getElementById("humidity").innerHTML = String(hum) + " %"
             date.setSeconds(date.getSeconds() + 1)
 
-            let obj = {temp:temp, timestamp:date.getTime()}
-            xmlhttp.open("POST", "http://localhost:8000/writeTemp", true);
+            let obj = {hum:hum, timestamp:date.getTime()}
+            xmlhttp.open("POST", "http://localhost:8000/writeHum", true);
             xmlhttp.setRequestHeader('Content-Type', 'application/json')
             xmlhttp.send(JSON.stringify(obj));
             xmlhttp.onreadystatechange = function() {
