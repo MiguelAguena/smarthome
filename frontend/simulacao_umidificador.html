@@ -1,22 +1,31 @@
 <!DOCTYPE html>
+
 <head>
     <title>Controle de Umidade</title>
 </head>
+
 <body>
     <h1>Simulação de umidificador</h1>
     <br>
-    <p style="display:inline">Tempo: </p><p style="display:inline" id="timer"></p>
+    <p style="display:inline">Tempo: </p>
+    <p style="display:inline" id="timer"></p>
     <br><br>
-    <p style="display:inline">Umidade do ambiente: </p><p style="display:inline" id="humidity"></p>
+    <p style="display:inline">Umidade do ambiente: </p>
+    <p style="display:inline" id="humidity"></p>
     <br><br>
-    <p style="display:inline">Multiplicador de velocidade: </p><input style="display:inline" type="number" id="multiplier" value="1" min="1">
+    <p style="display:inline">Multiplicador de velocidade: </p><input style="display:inline" type="number"
+        id="multiplier" value="1" min="1">
     <br><br>
-    <p style="display:inline">Potência do umidificador: </p><input style="display:inline" type="number" id="power" value="1" min="1">
+    <p style="display:inline">Potência do umidificador: </p><input style="display:inline" type="number" id="power"
+        value="1" min="1">
     <br><br>
-    <p style="display:inline">Umidade máxima: </p><input style="display:inline" type="number" id="max_hum" value="70" min="0" max="100">
+    <p style="display:inline">Umidade máxima: </p><input style="display:inline" type="number" id="max_hum" value="70"
+        min="0" max="100">
     <br><br>
     <b style="display:inline">Ligar o umidificador: </b><input style="display:inline" type="checkbox" id="turn_on">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js" integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"
+        integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         var xmlhttp = new XMLHttpRequest();
 
@@ -25,7 +34,7 @@
 
         var ambientHum = 50
         var hum = ambientHum
-        
+
         var oldHum = hum
         var oldDate = 0
         var oldCheck = false
@@ -33,7 +42,7 @@
         document.getElementById("humidity").innerHTML = String(oldHum) + " %"
 
         function calculateHumidity() {
-            if(document.getElementById("turn_on").checked) {
+            if (document.getElementById("turn_on").checked) {
                 hum = oldHum + (((document.getElementById("max_hum").value - oldHum) / 2) * math.erf((document.getElementById("power").value / 10) * ((date.getTime() - Number(oldDate)) / 1000) - 4)) + ((document.getElementById("max_hum").value - oldHum) / 2)
             }
 
@@ -42,8 +51,8 @@
             }
         }
 
-        var update = function() {
-            if(oldCheck != document.getElementById("turn_on").checked) {
+        var update = function () {
+            if (oldCheck != document.getElementById("turn_on").checked) {
                 oldDate = date.getTime()
                 oldHum = hum
             }
@@ -53,18 +62,32 @@
             document.getElementById("humidity").innerHTML = String(hum) + " %"
             date.setSeconds(date.getSeconds() + 1)
 
-            let obj = {hum:hum, timestamp:date.getTime()}
+            let obj = { hum: hum, timestamp: date.getTime() }
             xmlhttp.open("POST", "http://localhost:8000/writeHum", true);
             xmlhttp.setRequestHeader('Content-Type', 'application/json')
             xmlhttp.send(JSON.stringify(obj));
-            xmlhttp.onreadystatechange = function() {
+            xmlhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                 }
             };
 
             setTimeout(update, 1000 / document.getElementById("multiplier").value)
         }
-        
+
         setTimeout(update, 1000 / document.getElementById("multiplier").value)
+
+        function clearServer() {
+            
+
+            // let obj = { hum: hum, timestamp: date.getTime() }
+            xmlhttp.open("POST", "http://localhost:8000/clearData", true);
+            xmlhttp.setRequestHeader('Content-Type', 'application/json')
+            xmlhttp.send();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                }
+            };
+            console.log("sim ta chamando")
+        }
     </script>
 </body>
