@@ -29,27 +29,31 @@ app.post('/clearData', function (req, res) {
    var post_options = {
       host: 'localhost',
       port: '8086',
-      path: "/api/v2/delete?org=PCS&bucket=DB",
+      path: "/api/v2/delete?org=PCS&bucket=BD",
       method: 'POST',
       headers: {
          'Authorization': 'Token ' + INFLUXDB_TOKEN,
          'Content-Type': 'application/json'
-      },
-      data: {
-         "start": "2020-01-01T00:00:00Z",
-         "stop": "2024-12-31T00:00:00Z"
       }
    };
+
+   var post_data = JSON.stringify({
+      start: "2023-03-01T00:00:00Z",
+      stop: "2023-05-01T00:00:00Z"
+   })
 
    // Set up the request
    var post_req = http.request(post_options, function (dbRes) {
       dbRes.setEncoding('utf8');
+      console.log(dbRes)
+      console.log("I did it!")
       dbRes.on('data', function (chunk) {
          console.log('Response: ' + chunk);
          res.send(chunk)
       });
    });
 
+   post_req.write(post_data)
    post_req.end()
 });
 
