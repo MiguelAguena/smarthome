@@ -1,9 +1,7 @@
-// var INFLUXDB_TOKEN="JK9gQH30px_47i4uiXKzi1h9mz5cGSQusAb9B1poeP7WSa7ccMXZT7wKS1xemxB6BUaiiSCFUDn29f77C75RPA=="
-var INFLUXDB_TOKEN = "UzX1k65yoQI5A-ZPUNpXvAkUzweF2YzPJD9ufpI4_E9q06S64v52DNRsT4-kvO3UAMgVPefFCFkTfb0XAKjQ8Q=="
-
+var INFLUXDB_TOKEN="UoVOf9XQUYxPRZrKFms9mi9-VJLd1B9r1Yjqskjb0Na3iOPkXzjlF3vIPutcpRMvcB8Gp0pld3QR5-UhFZyo6Q=="
 var cors = require('cors')
 var express = require('express');
-const https = require('https')
+var http = require('http')
 
 var { InfluxDB, Point } = require('@influxdata/influxdb-client')
 
@@ -44,13 +42,15 @@ app.post('/clearData', function (req, res) {
    };
 
    // Set up the request
-   var post_req = https.request(post_options, function (dbRes) {
+   var post_req = http.request(post_options, function (dbRes) {
       dbRes.setEncoding('utf8');
       dbRes.on('data', function (chunk) {
          console.log('Response: ' + chunk);
          res.send(chunk)
       });
    });
+
+   post_req.end()
 });
 
 app.post('/writeTemp', function (req, res) {
