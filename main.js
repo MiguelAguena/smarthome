@@ -1,4 +1,5 @@
-var INFLUXDB_TOKEN="UoVOf9XQUYxPRZrKFms9mi9-VJLd1B9r1Yjqskjb0Na3iOPkXzjlF3vIPutcpRMvcB8Gp0pld3QR5-UhFZyo6Q=="
+// var INFLUXDB_TOKEN="UoVOf9XQUYxPRZrKFms9mi9-VJLd1B9r1Yjqskjb0Na3iOPkXzjlF3vIPutcpRMvcB8Gp0pld3QR5-UhFZyo6Q=="
+var INFLUXDB_TOKEN="UzX1k65yoQI5A-ZPUNpXvAkUzweF2YzPJD9ufpI4_E9q06S64v52DNRsT4-kvO3UAMgVPefFCFkTfb0XAKjQ8Q=="
 var cors = require('cors')
 var express = require('express');
 var http = require('http')
